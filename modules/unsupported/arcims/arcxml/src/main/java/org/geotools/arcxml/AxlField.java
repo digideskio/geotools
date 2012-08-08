@@ -82,19 +82,27 @@ public class AxlField {
         }
         if(binding.equals(String.class)) {
             return value;
-        } else if(binding.equals(Integer.class)) {
-            return Integer.parseInt(value);
         } else if(binding.equals(Boolean.class)) {
             return "true".equals(value);
-        } else if(binding.equals(BigInteger.class)) {
+        }
+
+        // For the following bindings empty string is null
+        if(value.trim().length() == 0) {
+            return null;
+        }
+	
+        if(binding.equals(Integer.class)) {
+            return Integer.parseInt(value);
+	} else if(binding.equals(BigInteger.class)) {
             return new BigInteger(value);
         } else if(binding.equals(Character.class)) {
             return value.charAt(0);
         } else if(binding.equals(Float.class)) {
-            // XXX
+            // XXX lets hope ArcIMS never uses thousand separators
+            // and a comma is always a decimal separator           
             return Float.parseFloat(value.replace(',', '.'));
         } else if(binding.equals(Double.class)) {
-            // XXX
+            // XXX same
             return Double.parseDouble(value.replace(',', '.'));
         } else if(binding.equals(Date.class)) {
             return new Date(Long.parseLong(value));
