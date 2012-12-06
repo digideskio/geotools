@@ -72,6 +72,7 @@ import org.opengis.filter.expression.Expression;
 import org.opengis.filter.expression.PropertyName;
 import org.opengis.filter.identity.FeatureId;
 import org.opengis.filter.spatial.BBOX;
+import org.opengis.geometry.BoundingBox;
 import org.xml.sax.SAXException;
 
 import com.vividsolutions.jts.geom.Coordinate;
@@ -160,17 +161,15 @@ public class GeoServerOnlineTest {
                     "work already");
             features = source.getFeatures(query);
             features.size();
-            Iterator reader = features.iterator();
-            while (reader.hasNext()) {
-                SimpleFeature feature = (SimpleFeature) reader.next();
-            }
-            features.close(reader);
-
             SimpleFeatureIterator iterator = features.features();
-            while (iterator.hasNext()) {
-                SimpleFeature feature = iterator.next();
+            try {
+                while (iterator.hasNext()) {
+                    SimpleFeature feature = (SimpleFeature) iterator.next();
+                }
             }
-            features.close(iterator);
+            finally {
+                iterator.close();
+            }
         }
     }
 
@@ -209,18 +208,11 @@ public class GeoServerOnlineTest {
         features = source.getFeatures(query);
         features.size();
 
-        Iterator reader = features.iterator();
-        while (reader.hasNext()) {
-            SimpleFeature feature = (SimpleFeature) reader.next();
-            System.out.println(feature);
-        }
-        features.close(reader);
-
         SimpleFeatureIterator iterator = features.features();
         while (iterator.hasNext()) {
             SimpleFeature feature = iterator.next();
         }
-        features.close(iterator);
+        iterator.close();
     }
 
     public void XtestFeatureType() throws NoSuchElementException, IOException, SAXException {
@@ -306,6 +298,10 @@ public class GeoServerOnlineTest {
             public MatchAction getMatchAction() {
                 return MatchAction.ANY;
             }
+
+			public BoundingBox getBounds() {
+				return bbox.getBounds();
+			}
         };
         
         final Query query = new Query(ft.getTypeName());
